@@ -45,9 +45,9 @@ def write_original_peaks(root_dir, peaks1, peaks2):
     sample_names = [peaks1.name, peaks2.name]
     peaks = [peaks1, peaks2]
 
-    header = f"chr\tstart\tend\tsummit\tM_value\tA_value\tP_value\t" \
+    header = f"chr\tstart\tend\tsummit\tM_value\tA_value\traw_M_value\traw_A_value\tP_value\t" \
              f"Peak_Group\tnormalized_read_density_in_{peaks1.name}\t" \
-             f"normalized_read_density_in_{peaks2.name}\n"
+             f"normalized_read_density_in_{peaks2.name}\theader_M\theader_inv_M\theader_M_raw\theader_inv_M_raw\n"
 
     for temp_name, temp_peaks in zip(sample_names, peaks):
         temp_file = os.path.join(root_dir, temp_name + '_MAvalues.xls')
@@ -62,28 +62,36 @@ def write_original_peaks(root_dir, peaks1, peaks2):
                     fout.write(
                         f"{peak.chrom}\t{peak.start + 1}\t{peak.end}\t"
                         f"{peak.summit + 1}\t{peak.m_normed:.5f}\t"
-                        f"{peak.a_normed:.5f}\t{peak.p_value}\t{peak_group}\t"
+                        f"{peak.a_normed:.5f}\t{peak.m_raw}\t{peak.a_raw}\t{peak.p_value}\t{peak_group}\t"
                         f"{peak.read_density1_normed:.5f}\t"
-                        f"{peak.read_density2_normed:.5f}\n")
+                        f"{peak.read_density2_normed:.5f}\t"
+                        f"{peak.chrom}:{peak.start + 1}-{peak.end} {peak.m_normed:.5f}\t"
+                        f"{peak.chrom}:{peak.start + 1}-{peak.end} {-1 * peak.m_normed:.5f}\t"
+                        f"{peak.chrom}:{peak.start + 1}-{peak.end} {peak.m_raw:.5f}\t"
+                        f"{peak.chrom}:{peak.start + 1}-{peak.end} {-1 * peak.m_raw:.5f}\n")
 
 
 def write_all_peaks(root_dir, peaks1, peaks2, peaks_merged):
     peaks, peak_groups = _get_unique_and_merged_peaks(peaks1, peaks2,
                                                       peaks_merged)
-    header = f"chr\tstart\tend\tsummit\tM_value\tA_value\tP_value\t" \
+    header = f"chr\tstart\tend\tsummit\tM_value\tA_value\traw_M_value\traw_A_value\tP_value\t" \
              f"Peak_Group\tnormalized_read_density_in_{peaks1.name}\t" \
-             f"normalized_read_density_in_{peaks2.name}\n"
+             f"normalized_read_density_in_{peaks2.name}\theader_M\theader_inv_M\theader_M_raw\theader_inv_M_raw\n"
     path = os.path.join(
         root_dir, peaks1.name + '_vs_' + peaks2.name + '_all_MAvalues.xls')
     with open(path, 'w') as fout:
         fout.write(header)
         for peak, peak_group in zip(peaks, peak_groups):
             fout.write(
-                f"{peak.chrom}\t{peak.start + 1}\t{peak.end}\t"
-                f"{peak.summit + 1}\t{peak.m_normed:.5f}\t"
-                f"{peak.a_normed:.5f}\t{peak.p_value}\t{peak_group}\t"
-                f"{peak.read_density1_normed:.5f}\t"
-                f"{peak.read_density2_normed:.5f}\n")
+                        f"{peak.chrom}\t{peak.start + 1}\t{peak.end}\t"
+                        f"{peak.summit + 1}\t{peak.m_normed:.5f}\t"
+                        f"{peak.a_normed:.5f}\t{peak.m_raw}\t{peak.a_raw}\t{peak.p_value}\t{peak_group}\t"
+                        f"{peak.read_density1_normed:.5f}\t"
+                        f"{peak.read_density2_normed:.5f}\t"
+                        f"{peak.chrom}:{peak.start + 1}-{peak.end} {peak.m_normed:.5f}\t"
+                        f"{peak.chrom}:{peak.start + 1}-{peak.end} {-1 * peak.m_normed:.5f}\t"
+                        f"{peak.chrom}:{peak.start + 1}-{peak.end} {peak.m_raw:.5f}\t"
+                        f"{peak.chrom}:{peak.start + 1}-{peak.end} {-1 * peak.m_raw:.5f}\n")
 
 
 def write_wiggle_track(root_dir, peaks1, peaks2, peaks_merged):
